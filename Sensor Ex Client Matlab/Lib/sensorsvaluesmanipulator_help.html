@@ -1,0 +1,81 @@
+<html>
+    <body>
+        <h1><font color="blue">Sensors Values Manipulator</font></h1>
+        <p>Manipulate sensors values fed by a <b><i>Sensor Ex Client</i></b> block.</p>
+        
+        
+        <h2><font color="#990000">Description</font></h2>
+        <p>The 'Sensors Values Manipulator' block manipulates sensors values fed by a <b><i>Sensor Ex Client</i></b> block.
+            The block's output ports can be changed via the 
+            <i>Output Type</i> and <i>Output Time Stamp</i> parameters. 
+            <br>
+            <br>
+            To use this block, copy it anywhere in your model and 
+            connect the <b><i>Sensor Ex Client</i></b> sensors output to its input.
+        </p>
+        <p>Some points to keep in mind when using the block:</p>
+        <ul>
+            <li> The block requires a <b><i>Sensor Ex Client</i></b> in the simulink model. </li>
+        </ul>
+        <br>
+        The Sensors block works on all supported Simulink platforms.
+        
+        
+        <h2><font color="#990000">Parameters</font></h2>       
+        <h3><font color="orange">Output Type</font></h3>
+        Defines block output ports.
+        <br>
+        
+        <ul>
+            <li>
+                <p>
+                    <i><font color="#39B7CD">Standard:</font></i> adds 2 output ports <b>Acceleration</b>, <b>Orientation</b>. 
+                    <ol>
+                        <li><b>Acceleration</b> 1-D array with acceleration values around X, Y and Z respectively.</li>
+                        <li><b>Orientation</b> 1-D array with orientation values around X, Y and Z respectively.</li>
+                    </ol>
+                </p>
+            </li>
+            <br>
+            <li>
+                <p>
+                    <i><font color="#39B7CD">Divided Arrays:</font></i> adds 6 output ports <b>Acceleration</b> around X, Y and Z, <b>Orientation</b> around X, Y and Z. 
+                    <ol>
+                        <li><b>AccX</b> acceleration value around X.</li>
+                        <li><b>AccY</b> acceleration value around Y.</li>
+                        <li><b>AccZ</b> acceleration value around Z.</li>
+                        <br>
+                        <li><b>OriX</b> orientation value around X.</li>
+                        <li><b>OriY</b> orientation value around Y.</li>
+                        <li><b>OriZ</b> orientation value around Z.</li>
+                    </ol>
+                </p>
+            </li>
+        </ul>
+        <h3><font color="orange">Output Time Stamp</font></h3>       
+        Time needed to fetch sensors values in seconds.
+        <br>
+        <blockquote>
+            <img src="Res/checkbox_on.png" height="17" width="17" alt=""></span> On </span>
+            <br>
+            <blockquote>Adds <b>TimeStamp</b> output port.</blockquote>   
+            <img src="Res/checkbox_off.png" height="17" width="17" alt=""></span> Off </span>
+            <br>
+            <blockquote>Removes <b>TimeStamp</b> output port.</blockquote>  
+            <br>
+            <b>TimeStamp</b> may vary depending on the device sample rate and processing speed. 
+        </blockquote>
+        
+        
+        <h2><font color="#990000">Inputs and Outputs</font></h2>    
+        <h3><font color="orange">Inputs</font></h3>
+        None.
+        <h3><font color="orange">Outputs</font></h3>
+        <ol>
+            <li><b>TotalTime</b> sum of device's timestamps in seconds. <i>(Double)</i></li>   
+        </ol>
+        More outputs depending on <i>Output Type</i> and <i>Output Time Stamp</i> parameters check above.       
+        <hr>
+    </body>
+</html>
+

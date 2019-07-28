@@ -1,0 +1,733 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Subacz_Motion</title><meta name="generator" content="MATLAB 9.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-12-10"><meta name="DC.source" content="Subacz_Motion.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">Subacz, RBE502, Final,</a></li><li><a href="#3">Problem 1A</a></li></ul></div><h2 id="1">Subacz, RBE502, Final,</h2><pre class="codeinput"><span class="keyword">function</span> PD_Motion_Control_of_a_Walking_robot()
+</pre><pre class="codeinput">    <span class="comment">%Assumptions:</span>
+    <span class="comment">%Phase two motion can be broken into a 5 part piece wise function with</span>
+    <span class="comment">%each funtion taking 1 second to complete. See CalculateIdealTrajectory</span>
+    <span class="comment">%for function generation.</span>
+    <span class="comment">%</span>
+    <span class="comment">%h =0.075 for phase 2 motion and takes 1 second to complete</span>
+    <span class="comment">%</span>
+    <span class="comment">%H_L =0.15 for phase 2 motion and takes 2.5 second to reach the middle</span>
+    <span class="comment">%point.</span>
+    <span class="comment">%</span>
+    <span class="comment">%All mathmatics are done is the negative quadrents to match the</span>
+    <span class="comment">%template.</span>
+    <span class="comment">%</span>
+    <span class="comment">%The pelican robot is started in the elbow down configuration</span>
+    <span class="comment">%</span>
+    <span class="comment">%I believe the forward and inverse kinematics in the book it incorrect</span>
+    <span class="comment">%or they are using a different base frame because when i ran the</span>
+    <span class="comment">%the results or x and y were swapped.</span>
+    <span class="comment">%</span>
+    <span class="comment">%Since the tip of the robot is not touching the ground, complaince</span>
+    <span class="comment">%cotrol is ignored for this problem.</span>
+    <span class="comment">%</span>
+    <span class="comment">%</span>
+    <span class="comment">%</span>
+</pre><h2 id="3">Problem 1A</h2><pre class="codeinput">    <span class="comment">%The controller used in this application is the PD control law. The</span>
+    <span class="comment">%assocaited equation with the PD controller is tau = k_p*q+K_v +q_dot+g(q)</span>
+    <span class="comment">%from lecture L6-P3. When you close the loop with the gravity term as</span>
+    <span class="comment">%part of tau. the gravity term cancels out in the dynamic model.</span>
+    <span class="comment">%See lecture 6 for derivation</span>
+    <span class="comment">%</span>
+
+    <span class="comment">%</span>
+
+    clc,close <span class="string">all</span>,clear <span class="string">all</span>
+    Tf = [0,25] ; <span class="comment">%Run time</span>
+
+    Generate_Plots = true;
+    <span class="comment">%set to true to display the animation and create new gif</span>
+    run_anaimation = false;
+
+    <span class="comment">%Parameters for the 2 link planar arm. These can be found on page 115</span>
+    <span class="comment">%of kelly's book</span>
+    l_1 = 0.26;
+    l_2 = 0.26;
+    l_c1 = 0.0983;
+    l_c2 = 0.0229;
+    m_1 = 6.5225;
+    m_2 = 2.0458;
+    I_1 = 0.1213;
+    I_2 = 0.0116;
+    g = 9.81;
+
+    <span class="comment">%Starting Coordinates</span>
+    x = 0.1;
+    y = -0.3;
+
+    <span class="comment">%Inverse Kinematics</span>
+    qd_2 = acos((x^2+y^2-l_1^2-l_2^2)/(2*l_1^2));
+    qd_1 = atan2(y,x)-atan2((l_2*sin(qd_2)),(l_1+l_2*cos(qd_2)));
+
+    <span class="comment">%Forward Kinematics</span>
+    x_pos = l_1*cos(qd_1)+l_2*cos(qd_1+qd_2);
+    y_pos = l_1*sin(qd_1)+l_2*sin(qd_1+qd_2);
+
+    <span class="comment">%Initial ode45  input format</span>
+    X0 =[x; <span class="comment">%%joint x pos</span>
+         y; <span class="comment">%%joint y pos</span>
+         qd_1; <span class="comment">%joint velocity1</span>
+         qd_2; <span class="comment">%joint velocity2</span>
+         0; <span class="comment">%Computed joint velocity1</span>
+         0; <span class="comment">%Computed joint velocity1</span>
+         0; <span class="comment">%torque 1</span>
+         0; <span class="comment">%torque 2</span>
+         0; <span class="comment">%joint error 1</span>
+         0; <span class="comment">%%joint error 2</span>
+         0; <span class="comment">%%position error 1</span>
+         0;  <span class="comment">%%position error 2</span>
+         0;
+         0];
+
+    [T,X] = ode45(@(t,x)plannarArmODE(t,x),Tf,X0);
+    <span class="keyword">if</span> Generate_Plots
+        <span class="comment">%%Problem 1B - Plot: Joint Angles vs Time.</span>
+        figure;
+        plot(T,X(:,3),T,X(:,4));
+        title(<span class="string">'Joint Angles vs Time'</span>)
+        xlabel(<span class="string">'Time'</span>)
+        ylabel(<span class="string">'Angle (radians)'</span>);
+        legend(<span class="string">'q_1'</span>,<span class="string">'q_2'</span>);
+        hold <span class="string">on</span>
+
+        <span class="comment">%%Problem 1C - Plot: Joint Velocities vs Time.</span>
+        figure;
+        plot(T,X(:,5),T,X(:,6));
+        title(<span class="string">'Joint Velocities vs Time'</span>)
+        xlabel(<span class="string">'Time'</span>)
+        ylabel(<span class="string">'dTheta'</span>);
+        legend(<span class="string">'q_1'</span>,<span class="string">'q_2'</span>);
+            hold <span class="string">on</span>
+
+        <span class="comment">%%Problem 1D - Plot: Control Input vs Time.</span>
+        <span class="comment">%Calculate t approximate derivative</span>
+        T1 = [0;diff(X(:,7))./diff(T)];
+        T2 = [0;diff(X(:,8))./diff(T)];
+        figure;
+        plot(T,T1,T,T2) ;
+        title(<span class="string">'Control Input vs Time'</span>)
+        xlabel(<span class="string">'Time'</span>)
+        ylabel(<span class="string">'Torque'</span>)
+        legend(<span class="string">'tau_1'</span> ,<span class="string">'tau_2'</span>)
+
+        <span class="comment">%%Problem 1E - Plot: End Effector path overtime.</span>
+        <span class="comment">%Calculate the tip position over time</span>
+        x_pos_act_phase_1 = [];
+        y_pos_act_phase_1= [];
+        <span class="keyword">for</span> t = 0:0.001:10
+            [x,y] = CalculateIdealTrajectory(t);
+            x_pos_act_phase_1 = [x_pos_act_phase_1,x];
+            y_pos_act_phase_1 = [y_pos_act_phase_1,y];
+        <span class="keyword">end</span>
+        x_pos_act_phase_2 = [];
+        y_pos_act_phase_2= [];
+        <span class="keyword">for</span> t = 10:0.001:15
+            [x,y] = CalculateIdealTrajectory(t);
+            x_pos_act_phase_2 = [x_pos_act_phase_2,x];
+            y_pos_act_phase_2 = [y_pos_act_phase_2,y];
+        <span class="keyword">end</span>
+        figure;
+        x_tip_pos = l_1*cos(X(:,3)) + l_2*cos(X(:,3)+X(:,4));
+        y_tip_pos = l_1*sin(X(:,3)) + l_2*sin(X(:,3)+X(:,4));
+        plot(x_tip_pos,y_tip_pos,<span class="string">'g'</span>,<span class="keyword">...</span>
+            x_pos_act_phase_1,y_pos_act_phase_1,<span class="string">':r'</span>,<span class="keyword">...</span>
+            x_pos_act_phase_2,y_pos_act_phase_2,<span class="string">':b'</span>) ;
+        title(<span class="string">'End Effector Path '</span>)
+        xlabel(<span class="string">'Time'</span>)
+        ylabel(<span class="string">'Position'</span>)
+        legend(<span class="string">'Tip Position Path'</span>,<span class="string">'Phase 1 Path'</span>,<span class="string">'Phase 2 Path'</span>)
+        axis([-0.15 0.15 -0.32 -0.13]);
+
+        <span class="comment">%%Problem 1F - Plot: Plot: End Effector position overtime.</span>
+        figure;
+        plot(T,x_tip_pos,<span class="string">'r'</span>,T,y_tip_pos,<span class="string">'b'</span>) ;
+        title(<span class="string">'End Effector Position'</span>)
+        xlabel(<span class="string">'Time'</span>)
+        ylabel(<span class="string">'Position'</span>)
+        legend(<span class="string">'x position'</span>,<span class="string">'y position'</span>)
+
+        <span class="comment">%%Problem 1G - Plot: End Effector Velocity vs time.</span>
+        figure;
+        plot(T,X(:,13),<span class="string">'r'</span>,T,X(:,14),<span class="string">'b'</span>) ;
+        title(<span class="string">'End Effector Velocity'</span>)
+        xlabel(<span class="string">'Time'</span>)
+        ylabel(<span class="string">'Velocity'</span>)
+        legend(<span class="string">'y Velocity'</span>,<span class="string">'x Velocity'</span>)
+    <span class="keyword">end</span>
+    <span class="comment">%%Problem 1H - Animation: of end Effector</span>
+    <span class="comment">%Stickmodel animation - code from hw solution 4</span>
+    <span class="keyword">if</span> run_anaimation
+        x_tip_pos = l_1*cos(X(:,3)) + l_2*cos(X(:,3)+X(:,4));
+        y_tip_pos = l_1*sin(X(:,3)) + l_2*sin(X(:,3)+X(:,4));
+        x_pos_act_phase_1 = [];
+        y_pos_act_phase_1= [];
+        <span class="keyword">for</span> t = 0:0.001:10
+            [x,y] = CalculateIdealTrajectory(t);
+            x_pos_act_phase_1 = [x_pos_act_phase_1,x];
+            y_pos_act_phase_1 = [y_pos_act_phase_1,y];
+        <span class="keyword">end</span>
+        x_pos_act_phase_2 = [];
+        y_pos_act_phase_2= [];
+        <span class="keyword">for</span> t = 10:0.001:15
+            [x,y] = CalculateIdealTrajectory(t);
+            x_pos_act_phase_2 = [x_pos_act_phase_2,x];
+            y_pos_act_phase_2 = [y_pos_act_phase_2,y];
+        <span class="keyword">end</span>
+        figure;
+        subplot(2,1,1);
+        plot(T,x_tip_pos,T,y_tip_pos);
+        hh1(1)= line(T(1),x_tip_pos(1,1),<span class="string">'Marker'</span>,<span class="string">'.'</span>,<span class="string">'MarkerSize'</span>,20, <span class="keyword">...</span>
+            <span class="string">'Color'</span>,<span class="string">'b'</span>);
+        hh1(2)= line(T(1),y_tip_pos(1,1),<span class="string">'Marker'</span>,<span class="string">'.'</span>,<span class="string">'MarkerSize'</span>,20, <span class="keyword">...</span>
+            <span class="string">'Color'</span>,[0 .5 0]);
+        xlabel(<span class="string">'time(sec)'</span>); ylabel(<span class="string">'Position'</span>);
+        legend(<span class="string">'x position'</span>,<span class="string">'y position'</span>)
+
+        subplot(2,1,2);
+        plot(x_pos_act_phase_1,y_pos_act_phase_1,<span class="string">':r'</span>,<span class="keyword">...</span>
+            x_pos_act_phase_2,y_pos_act_phase_2,<span class="string">':b'</span>);
+        hh3(3) = line(x_tip_pos(1,1),y_tip_pos(1,1),<span class="string">'Marker'</span>,<span class="string">'.'</span>,<span class="string">'MarkerSize'</span>,10, <span class="keyword">...</span>
+            <span class="string">'Color'</span>,[0 .5 0]);
+        hh2 = line ([0,1*cos(X(1,3))],[0,1*sin(X(1,3))]);
+        ht = title(sprintf(<span class="string">'Time: %0.2 f sec\nPositon: %0.2 f \nAngle : %0.2f(Radian) %0.2f(Degree) '</span><span class="keyword">...</span>
+        , T(1), x_tip_pos(1,1), y_tip_pos(1,1),rad2deg(y_tip_pos(1,1))));
+        xlabel(<span class="string">'Stickmodel'</span>)
+        legend(<span class="string">'Phase 1 Path'</span>,<span class="string">'Phase 2 Path'</span>)
+        axis([-0.2 0.2 -0.35 0.1]);
+
+        <span class="comment">%Loop through the positions of links 1 and 2 and diplay them</span>
+        <span class="keyword">for</span> i = 1:length(T)
+            set(hh1(1),<span class="string">'XData'</span> ,T(i),<span class="string">'YData'</span> , x_tip_pos(i,1));
+            set(hh1(2),<span class="string">'XData'</span> ,T(i),<span class="string">'YData'</span> , y_tip_pos(i,1));
+            set(hh3(3),<span class="string">'XData'</span> ,x_tip_pos(i,1),<span class="string">'YData'</span> , y_tip_pos(i,1));
+            y_loc_1 = l_1*sin(X(i,3));
+            x_loc_1 = l_1*cos(X(i,3));
+            y_loc_2= l_1*sin(X(i,3))+l_2*sin(X(i,3)+X(i,4));
+            x_loc_2= l_1*cos(X(i,3))+l_2*cos(X(i,3)+X(i,4));
+            set(hh2(1), <span class="string">'XData'</span>, [0,x_loc_1,x_loc_2],<span class="string">'YData'</span>, [0, y_loc_1, y_loc_2]);
+            set(ht, <span class="string">'String'</span>, sprintf(<span class="string">'Time: %0.2f sec \nAngle: %0.2f(Radian) %0.2f(Degree) '</span>,<span class="keyword">...</span>
+            [T(i), X(i,3), rad2deg(X(i,3))]));
+            f = getframe(gcf);
+
+            <span class="keyword">if</span> i==1
+                [mov(:,:,1,i),map]= rgb2ind(f.cdata,256,<span class="string">'nodither'</span>);
+            <span class="keyword">else</span>
+                mov(:,:,1,i) = rgb2ind(f.cdata,map,<span class="string">'nodither'</span>);
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+        imwrite(mov,map, <span class="string">'Stickmodel_Animation.gif'</span>, <span class="string">'DelayTime'</span>,0,<span class="string">'LoopCount'</span>,inf);
+    <span class="keyword">end</span>
+
+    <span class="keyword">function</span> dx = plannarArmODE(t,x)
+        theta = [x(3),x(4)];  <span class="comment">%joint angle</span>
+        dtheta = [x(5),x(6)]; <span class="comment">%joint velocity</span>
+
+        <span class="comment">%Calculate the mass matrix</span>
+        M_11 = (m_1*l_c1^2 + m_2*(l_1^2+l_c2^2+2*l_1*l_c2*cos(theta(2)))+ I_1 + I_2 );
+        M_12 = (m_2*(l_c2^2 +l_1*l_c2*cos(theta(2))) + I_2);
+        M_21 = (m_2*(l_c2^2 +l_1*l_c2*cos(theta(2))) + I_2);
+        M_22 = (m_2*l_c2^2+ I_2);
+        M = [ M_11,M_12;
+              M_21,M_22];
+
+        <span class="comment">%Calculate the coriolis matrix</span>
+        C_11 =(-m_2*l_1*l_c2*sin(theta(2))*dtheta(2));
+        C_12 =(-m_2*l_1*l_c2*sin(theta(2))*(dtheta(1)+dtheta(2)));
+        C_21 =(m_2*l_1*l_c2*sin(theta(2))*dtheta(1));
+        C_22 =0;
+        C = [C_11,C_12;
+            C_21,C_22];
+
+        <span class="comment">%Calculate the gravity matrix</span>
+        G_11 =(m_1*l_c1+m_2+l_1)*g*sin(theta(1))+m_2*l_c2*g*sin(theta(1)+theta(2));
+        G_21 =(m_2*l_c2*g*sin(theta(1)+theta(2)));
+        G = [G_11;
+             G_21];
+
+        <span class="keyword">if</span> t&lt;15
+            [x_pos,y_pos] = CalculateIdealTrajectory(t);
+        <span class="keyword">else</span>
+            t = t-15;
+            [x_pos,y_pos] = CalculateIdealTrajectory(t);
+        <span class="keyword">end</span>
+
+        <span class="comment">%Calculate the inverse kinematics</span>
+        qd_2 = acos((x_pos^2+y_pos^2-l_1^2-l_2^2)/(2*l_1^2));
+        qd_1 = atan2(y_pos,x_pos)-atan2((l_2*sin(qd_2)),(l_1+l_2*cos(qd_2)));
+
+        q_d = [qd_1;
+               qd_2];
+        qdDot = [0;
+                 0];
+
+        <span class="comment">%Calculate tau</span>
+        [tau,e] = PDControl(theta,dtheta,q_d,qdDot);
+
+        posError1 = [l_1*cos(theta(1)) + l_2*cos(theta(1)+theta(2));
+                     l_1*sin(theta(1)) + l_2*sin(theta(1)+theta(2))];
+        posError2 = [l_1*cos(q_d(1))   + l_2*cos(q_d(1)+q_d(2));
+                     l_1*sin(q_d(1))   + l_2*sin(q_d(1)+q_d(2))];
+        error = posError2-posError1;
+
+        <span class="comment">%Calculate joint velocities</span>
+        qdot = inv(M)*(tau-C*[dtheta(1);dtheta(2)]);
+
+        dx = [qd_1 - x(3);<span class="comment">%%joint error angle1</span>
+              qd_2 - x(4);<span class="comment">%%joint error angle2</span>
+                     x(5); <span class="comment">%joint velocity1</span>
+                     x(6); <span class="comment">%joint velocity2</span>
+                  qdot(1); <span class="comment">%Computed joint velocity1</span>
+                  qdot(2); <span class="comment">%Computed joint velocity1</span>
+                   tau(1); <span class="comment">%torque 1</span>
+                   tau(2); <span class="comment">%torque 2</span>
+                     e(1); <span class="comment">%joint error 1</span>
+                     e(2); <span class="comment">%joint error 2</span>
+                 error(1); <span class="comment">%position error 1</span>
+                 error(2); <span class="comment">%position error 2</span>
+                 dtheta(1);<span class="comment">%</span>
+                 dtheta(2);];
+    <span class="keyword">end</span>
+
+    <span class="keyword">function</span> [tau,e] = PDControl(theta,dtheta,q_d,qdDot)
+        K_p = [200, 0;
+               0, 200]; <span class="comment">%Kp gain</span>
+        K_v = [7, 0;
+               0 5];  <span class="comment">%Kv gain</span>
+        e=q_d-[theta(1);theta(2)]; <span class="comment">% position error</span>
+        de = qdDot - [dtheta(1);dtheta(2)]; <span class="comment">% velocity error</span>
+        tau = K_p*e + K_v*de;
+    <span class="keyword">end</span>
+
+    <span class="keyword">function</span> [x1,y1] = CalculateIdealTrajectory(t)
+        <span class="keyword">if</span> t&lt;10
+            x1 = 0.1 - t*2*0.01;
+            y1 = -0.3;
+        <span class="keyword">elseif</span> t&gt;=10 &amp;&amp; t&lt;11
+            <span class="comment">%p1</span>
+            x1 = -0.1;
+            y1 = -0.3+(t-10)*0.075;
+        <span class="keyword">elseif</span> t&gt;=11 &amp;&amp; t&lt;12
+            <span class="comment">%curve y to match graph</span>
+            x1 = -0.1+(t-11)*0.066;
+            dt = -(1-(t-11));
+            y1 =((dt*.415).^3)-0.15;
+        <span class="keyword">elseif</span> t&gt;=12 &amp;&amp; t&lt;13
+            <span class="comment">%p3</span>
+            x1 = -0.034+(t-12)*0.066;
+            y1 = -0.15;
+        <span class="keyword">elseif</span> t&gt;=13 &amp;&amp; t&lt;14
+            <span class="comment">%curve y to match graph</span>
+            x1 = 0.0320+(t-13)*0.066;
+            dt = t-13;
+            a = -1;
+            y1 =(a*(dt*.415).^3)-0.15;
+        <span class="keyword">elseif</span> t&gt;=14 &amp;&amp; t&lt;=15
+            x1 = 0.1;
+            y1 = -0.2317-(t-14)*0.0688;
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+</pre><img vspace="5" hspace="5" src="Subacz_Motion_01.png" alt=""> <img vspace="5" hspace="5" src="Subacz_Motion_02.png" alt=""> <img vspace="5" hspace="5" src="Subacz_Motion_03.png" alt=""> <img vspace="5" hspace="5" src="Subacz_Motion_04.png" alt=""> <img vspace="5" hspace="5" src="Subacz_Motion_05.png" alt=""> <img vspace="5" hspace="5" src="Subacz_Motion_06.png" alt=""> <pre class="codeinput"><span class="keyword">end</span>
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2018b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Subacz, RBE502, Final,
+function PD_Motion_Control_of_a_Walking_robot()
+    %Assumptions:
+    %Phase two motion can be broken into a 5 part piece wise function with
+    %each funtion taking 1 second to complete. See CalculateIdealTrajectory
+    %for function generation.
+    %
+    %h =0.075 for phase 2 motion and takes 1 second to complete
+    %
+    %H_L =0.15 for phase 2 motion and takes 2.5 second to reach the middle
+    %point.
+    %
+    %All mathmatics are done is the negative quadrents to match the
+    %template.
+    %
+    %The pelican robot is started in the elbow down configuration
+    %
+    %I believe the forward and inverse kinematics in the book it incorrect 
+    %or they are using a different base frame because when i ran the 
+    %the results or x and y were swapped. 
+    %
+    %Since the tip of the robot is not touching the ground, complaince
+    %cotrol is ignored for this problem.
+    %
+    %
+    %
+    %% Problem 1A
+    %The controller used in this application is the PD control law. The
+    %assocaited equation with the PD controller is tau = k_p*q+K_v +q_dot+g(q) 
+    %from lecture L6-P3. When you close the loop with the gravity term as 
+    %part of tau. the gravity term cancels out in the dynamic model. 
+    %See lecture 6 for derivation
+    %
+
+    %
+    
+    clc,close all,clear all
+    Tf = [0,25] ; %Run time
+    
+    Generate_Plots = true;
+    %set to true to display the animation and create new gif
+    run_anaimation = false;
+    
+    %Parameters for the 2 link planar arm. These can be found on page 115
+    %of kelly's book
+    l_1 = 0.26;
+    l_2 = 0.26;
+    l_c1 = 0.0983;
+    l_c2 = 0.0229;
+    m_1 = 6.5225;
+    m_2 = 2.0458;
+    I_1 = 0.1213;
+    I_2 = 0.0116;
+    g = 9.81;
+    
+    %Starting Coordinates
+    x = 0.1;
+    y = -0.3;
+    
+    %Inverse Kinematics
+    qd_2 = acos((x^2+y^2-l_1^2-l_2^2)/(2*l_1^2));  
+    qd_1 = atan2(y,x)-atan2((l_2*sin(qd_2)),(l_1+l_2*cos(qd_2)));
+
+    %Forward Kinematics
+    x_pos = l_1*cos(qd_1)+l_2*cos(qd_1+qd_2);
+    y_pos = l_1*sin(qd_1)+l_2*sin(qd_1+qd_2);
+
+    %Initial ode45  input format        
+    X0 =[x; %%joint x pos
+         y; %%joint y pos
+         qd_1; %joint velocity1
+         qd_2; %joint velocity2
+         0; %Computed joint velocity1
+         0; %Computed joint velocity1
+         0; %torque 1
+         0; %torque 2
+         0; %joint error 1 
+         0; %%joint error 2
+         0; %%position error 1
+         0;  %%position error 2
+         0;
+         0];
+
+    [T,X] = ode45(@(t,x)plannarArmODE(t,x),Tf,X0);
+    if Generate_Plots
+        %%Problem 1B - Plot: Joint Angles vs Time.
+        figure;
+        plot(T,X(:,3),T,X(:,4));
+        title('Joint Angles vs Time')
+        xlabel('Time')
+        ylabel('Angle (radians)');
+        legend('q_1','q_2');
+        hold on
+
+        %%Problem 1C - Plot: Joint Velocities vs Time.
+        figure;
+        plot(T,X(:,5),T,X(:,6));
+        title('Joint Velocities vs Time')
+        xlabel('Time')
+        ylabel('dTheta');
+        legend('q_1','q_2');
+            hold on
+
+        %%Problem 1D - Plot: Control Input vs Time.
+        %Calculate t approximate derivative
+        T1 = [0;diff(X(:,7))./diff(T)];
+        T2 = [0;diff(X(:,8))./diff(T)];
+        figure;
+        plot(T,T1,T,T2) ;
+        title('Control Input vs Time')
+        xlabel('Time')
+        ylabel('Torque')
+        legend('tau_1' ,'tau_2')
+
+        %%Problem 1E - Plot: End Effector path overtime.
+        %Calculate the tip position over time
+        x_pos_act_phase_1 = [];
+        y_pos_act_phase_1= []; 
+        for t = 0:0.001:10
+            [x,y] = CalculateIdealTrajectory(t);
+            x_pos_act_phase_1 = [x_pos_act_phase_1,x];
+            y_pos_act_phase_1 = [y_pos_act_phase_1,y];
+        end
+        x_pos_act_phase_2 = [];
+        y_pos_act_phase_2= []; 
+        for t = 10:0.001:15
+            [x,y] = CalculateIdealTrajectory(t);
+            x_pos_act_phase_2 = [x_pos_act_phase_2,x];
+            y_pos_act_phase_2 = [y_pos_act_phase_2,y];
+        end
+        figure;
+        x_tip_pos = l_1*cos(X(:,3)) + l_2*cos(X(:,3)+X(:,4));
+        y_tip_pos = l_1*sin(X(:,3)) + l_2*sin(X(:,3)+X(:,4));
+        plot(x_tip_pos,y_tip_pos,'g',...
+            x_pos_act_phase_1,y_pos_act_phase_1,':r',...
+            x_pos_act_phase_2,y_pos_act_phase_2,':b') ;
+        title('End Effector Path ')
+        xlabel('Time')
+        ylabel('Position')
+        legend('Tip Position Path','Phase 1 Path','Phase 2 Path')
+        axis([-0.15 0.15 -0.32 -0.13]);
+
+        %%Problem 1F - Plot: Plot: End Effector position overtime.
+        figure;
+        plot(T,x_tip_pos,'r',T,y_tip_pos,'b') ;
+        title('End Effector Position')
+        xlabel('Time')
+        ylabel('Position')
+        legend('x position','y position')
+
+        %%Problem 1G - Plot: End Effector Velocity vs time.
+        figure;
+        plot(T,X(:,13),'r',T,X(:,14),'b') ;
+        title('End Effector Velocity')
+        xlabel('Time')
+        ylabel('Velocity')
+        legend('y Velocity','x Velocity')
+    end
+    %%Problem 1H - Animation: of end Effector
+    %Stickmodel animation - code from hw solution 4
+    if run_anaimation
+        x_tip_pos = l_1*cos(X(:,3)) + l_2*cos(X(:,3)+X(:,4));
+        y_tip_pos = l_1*sin(X(:,3)) + l_2*sin(X(:,3)+X(:,4));
+        x_pos_act_phase_1 = [];
+        y_pos_act_phase_1= []; 
+        for t = 0:0.001:10
+            [x,y] = CalculateIdealTrajectory(t);
+            x_pos_act_phase_1 = [x_pos_act_phase_1,x];
+            y_pos_act_phase_1 = [y_pos_act_phase_1,y];
+        end
+        x_pos_act_phase_2 = [];
+        y_pos_act_phase_2= []; 
+        for t = 10:0.001:15
+            [x,y] = CalculateIdealTrajectory(t);
+            x_pos_act_phase_2 = [x_pos_act_phase_2,x];
+            y_pos_act_phase_2 = [y_pos_act_phase_2,y];
+        end
+        figure;
+        subplot(2,1,1);
+        plot(T,x_tip_pos,T,y_tip_pos);
+        hh1(1)= line(T(1),x_tip_pos(1,1),'Marker','.','MarkerSize',20, ...
+            'Color','b');
+        hh1(2)= line(T(1),y_tip_pos(1,1),'Marker','.','MarkerSize',20, ...
+            'Color',[0 .5 0]);
+        xlabel('time(sec)'); ylabel('Position');    
+        legend('x position','y position')
+
+        subplot(2,1,2);
+        plot(x_pos_act_phase_1,y_pos_act_phase_1,':r',...
+            x_pos_act_phase_2,y_pos_act_phase_2,':b');
+        hh3(3) = line(x_tip_pos(1,1),y_tip_pos(1,1),'Marker','.','MarkerSize',10, ...
+            'Color',[0 .5 0]);
+        hh2 = line ([0,1*cos(X(1,3))],[0,1*sin(X(1,3))]);
+        ht = title(sprintf('Time: %0.2 f sec\nPositon: %0.2 f \nAngle : %0.2f(Radian) %0.2f(Degree) '...
+        , T(1), x_tip_pos(1,1), y_tip_pos(1,1),rad2deg(y_tip_pos(1,1))));
+        xlabel('Stickmodel')
+        legend('Phase 1 Path','Phase 2 Path')
+        axis([-0.2 0.2 -0.35 0.1]);
+
+        %Loop through the positions of links 1 and 2 and diplay them 
+        for i = 1:length(T)
+            set(hh1(1),'XData' ,T(i),'YData' , x_tip_pos(i,1));
+            set(hh1(2),'XData' ,T(i),'YData' , y_tip_pos(i,1));
+            set(hh3(3),'XData' ,x_tip_pos(i,1),'YData' , y_tip_pos(i,1));
+            y_loc_1 = l_1*sin(X(i,3));
+            x_loc_1 = l_1*cos(X(i,3));
+            y_loc_2= l_1*sin(X(i,3))+l_2*sin(X(i,3)+X(i,4));
+            x_loc_2= l_1*cos(X(i,3))+l_2*cos(X(i,3)+X(i,4));
+            set(hh2(1), 'XData', [0,x_loc_1,x_loc_2],'YData', [0, y_loc_1, y_loc_2]);
+            set(ht, 'String', sprintf('Time: %0.2f sec \nAngle: %0.2f(Radian) %0.2f(Degree) ',...
+            [T(i), X(i,3), rad2deg(X(i,3))]));
+            f = getframe(gcf);
+
+            if i==1
+                [mov(:,:,1,i),map]= rgb2ind(f.cdata,256,'nodither');
+            else
+                mov(:,:,1,i) = rgb2ind(f.cdata,map,'nodither');
+            end
+        end
+        imwrite(mov,map, 'Stickmodel_Animation.gif', 'DelayTime',0,'LoopCount',inf);
+    end
+
+    function dx = plannarArmODE(t,x)
+        theta = [x(3),x(4)];  %joint angle
+        dtheta = [x(5),x(6)]; %joint velocity
+
+        %Calculate the mass matrix
+        M_11 = (m_1*l_c1^2 + m_2*(l_1^2+l_c2^2+2*l_1*l_c2*cos(theta(2)))+ I_1 + I_2 );
+        M_12 = (m_2*(l_c2^2 +l_1*l_c2*cos(theta(2))) + I_2);
+        M_21 = (m_2*(l_c2^2 +l_1*l_c2*cos(theta(2))) + I_2);
+        M_22 = (m_2*l_c2^2+ I_2);
+        M = [ M_11,M_12;
+              M_21,M_22];
+        
+        %Calculate the coriolis matrix
+        C_11 =(-m_2*l_1*l_c2*sin(theta(2))*dtheta(2));
+        C_12 =(-m_2*l_1*l_c2*sin(theta(2))*(dtheta(1)+dtheta(2)));
+        C_21 =(m_2*l_1*l_c2*sin(theta(2))*dtheta(1));
+        C_22 =0;
+        C = [C_11,C_12;
+            C_21,C_22];
+        
+        %Calculate the gravity matrix
+        G_11 =(m_1*l_c1+m_2+l_1)*g*sin(theta(1))+m_2*l_c2*g*sin(theta(1)+theta(2));
+        G_21 =(m_2*l_c2*g*sin(theta(1)+theta(2)));
+        G = [G_11;
+             G_21];
+
+        if t<15
+            [x_pos,y_pos] = CalculateIdealTrajectory(t);
+        else
+            t = t-15;
+            [x_pos,y_pos] = CalculateIdealTrajectory(t);
+        end
+
+        %Calculate the inverse kinematics        
+        qd_2 = acos((x_pos^2+y_pos^2-l_1^2-l_2^2)/(2*l_1^2));  
+        qd_1 = atan2(y_pos,x_pos)-atan2((l_2*sin(qd_2)),(l_1+l_2*cos(qd_2)));
+
+        q_d = [qd_1;
+               qd_2];
+        qdDot = [0;
+                 0];
+        
+        %Calculate tau
+        [tau,e] = PDControl(theta,dtheta,q_d,qdDot);
+         
+        posError1 = [l_1*cos(theta(1)) + l_2*cos(theta(1)+theta(2));
+                     l_1*sin(theta(1)) + l_2*sin(theta(1)+theta(2))];
+        posError2 = [l_1*cos(q_d(1))   + l_2*cos(q_d(1)+q_d(2));
+                     l_1*sin(q_d(1))   + l_2*sin(q_d(1)+q_d(2))];       
+        error = posError2-posError1;
+               
+        %Calculate joint velocities
+        qdot = inv(M)*(tau-C*[dtheta(1);dtheta(2)]);
+        
+        dx = [qd_1 - x(3);%%joint error angle1
+              qd_2 - x(4);%%joint error angle2
+                     x(5); %joint velocity1
+                     x(6); %joint velocity2
+                  qdot(1); %Computed joint velocity1
+                  qdot(2); %Computed joint velocity1
+                   tau(1); %torque 1
+                   tau(2); %torque 2
+                     e(1); %joint error 1 
+                     e(2); %joint error 2
+                 error(1); %position error 1
+                 error(2); %position error 2
+                 dtheta(1);%
+                 dtheta(2);];
+    end
+
+    function [tau,e] = PDControl(theta,dtheta,q_d,qdDot)
+        K_p = [200, 0;
+               0, 200]; %Kp gain
+        K_v = [7, 0;
+               0 5];  %Kv gain
+        e=q_d-[theta(1);theta(2)]; % position error
+        de = qdDot - [dtheta(1);dtheta(2)]; % velocity error
+        tau = K_p*e + K_v*de;
+    end
+
+    function [x1,y1] = CalculateIdealTrajectory(t)   
+        if t<10
+            x1 = 0.1 - t*2*0.01;
+            y1 = -0.3;
+        elseif t>=10 && t<11 
+            %p1
+            x1 = -0.1;
+            y1 = -0.3+(t-10)*0.075;
+        elseif t>=11 && t<12 
+            %curve y to match graph
+            x1 = -0.1+(t-11)*0.066;
+            dt = -(1-(t-11));
+            y1 =((dt*.415).^3)-0.15;
+        elseif t>=12 && t<13 
+            %p3 
+            x1 = -0.034+(t-12)*0.066;
+            y1 = -0.15;
+        elseif t>=13 && t<14
+            %curve y to match graph
+            x1 = 0.0320+(t-13)*0.066;
+            dt = t-13;
+            a = -1;
+            y1 =(a*(dt*.415).^3)-0.15;
+        elseif t>=14 && t<=15 
+            x1 = 0.1;
+            y1 = -0.2317-(t-14)*0.0688;
+        end
+    end
+end
+
+##### SOURCE END #####
+--></body></html>

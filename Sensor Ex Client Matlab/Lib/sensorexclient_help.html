@@ -1,0 +1,44 @@
+<html>
+    <body>
+        <h1><font color="blue">Sensor Ex Client</font></h1>
+        <p>Matlab client for Sensor Ex application.</p>
+        
+        
+        <h2><font color="#990000">Description</font></h2>
+        <p>The 'Sensor Ex Client' block fetches data from a connected mobile device.
+            <br>
+            <br>
+            To use this block, copy it anywhere in your model select <b><i>Device Number</i></b> and specify the 
+            appropriate <b><i>Image Size</i></b> vector.
+        </p>
+        <p>Some points to keep in mind when using the block:</p>
+        <ul>
+            <li> The block operates correctly in real time simulation. Try using Real-Time Pacer block. </li>
+        </ul>
+        <br>
+        The Sensors block works on all supported Simulink platforms.
+        
+        
+        <h2><font color="#990000">Parameters</font></h2>    
+        <h3><font color="orange">Device Number</font></h3>
+        Device number of the mobile device.   
+        <h3><font color="orange">Image Size</font></h3>        
+        1-D array image size of the form [Height Width].
+        
+        
+        <h2><font color="#990000">Inputs and Outputs</font></h2>       
+        <h3><font color="orange">Inputs</font></h3>
+        None.
+        <h3><font color="orange">Outputs</font></h3>
+        <ol>
+            <li><b>IP Local</b> address. <i>(1-D array)</i></li> 
+            <li><b>IP Device</b> address. <i>(1-D array)</i></li> 
+            <li><b>Sensors</b> values. <i>(1-D array)</i></li> 
+            <li><b>R</b> red channel of the image. <i>(1-D array)</i></li> 
+            <li><b>G</b> green channel of the image. <i>(1-D array)</i></li> 
+            <li><b>B</b> blue channel of the image. <i>(1-D array)</i></li> 
+        </ol>       
+        <hr>
+    </body>
+</html>
+
